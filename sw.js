@@ -1,9 +1,9 @@
 /* offline cache — bump VERSION to force update */
-const VERSION = "vb2-v9";
+const VERSION = "vb2-v11";
 const ASSETS = [
-  "./","index.html","app.js?v=8","emoji.js?v=8",
-  "deck_l1.js?v=8","deck_l2.js?v=8","deck_l3.js?v=8","deck_l4.js?v=8","deck_l5.js?v=8",
-  "manifest.webmanifest?v=8","icon-192.png","icon-512.png","icon-180.png"
+  "./","index.html","app.js?v=10","emoji.js?v=10",
+  "deck_l1.js?v=10","deck_l2.js?v=10","deck_l3.js?v=10","deck_l4.js?v=10","deck_l5.js?v=10","config.js?v=10","vendor/supabase.min.js?v=10","sync.js?v=10",
+  "manifest.webmanifest?v=10","icon-192.png","icon-512.png","icon-180.png"
 ];
 self.addEventListener("install", e=>{
   self.skipWaiting();

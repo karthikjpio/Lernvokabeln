@@ -200,7 +200,7 @@ function renderHome(){
   list.appendChild(soon);
   const ver=document.createElement("div");
   ver.className="verscroll";
-  ver.textContent="v1.3";
+  ver.textContent="v1.4";
   list.appendChild(ver);
   // daily goal
   const n=todayCount(), goal=store.goal||20, gp=Math.min(100, Math.round(n/goal*100));
@@ -472,9 +472,11 @@ function grade(ok, productive, opt){
     if(productive) s.abox=Math.max(0,(s.abox||0)-1);
     S.wrong++; sAgain(); buzz([8,20,8]);
   }
+  s.ua=Date.now();
   store.cards[id]=s;
   logReview(id, ok);
   save();
+  if(window.VBSync) VBSync.dirty(id);
   S.history.push({idx,prev});
   S.lastWord = DECK.lessons[l].cards[idx].w;
   if(S.mode==="flip") setTimeout(advance, ok?300:200);
@@ -500,7 +502,8 @@ function logReview(id, ok){
 function undo(){
   if(!S||!S.history.length) return;
   const h=S.history.pop(), id=cidAt(S.lesson,h.idx);
-  if(h.prev===null) delete store.cards[id]; else store.cards[id]=h.prev;
+  if(h.prev===null) delete store.cards[id]; else { store.cards[id]=h.prev; store.cards[id].ua=Date.now(); }
+  if(window.VBSync) VBSync.dirty(id);
   for(let i=store.log.length-1;i>=0;i--){
     if(store.log[i].i===id){
       const e=store.log.splice(i,1)[0], k=dayKey(e.t), day=store.daily[k];
@@ -587,7 +590,9 @@ function checkProduktion(){
       const s=Object.assign({box:0,due:0,seen:false,abox:0}, store.cards[id]||{});
       s.abox=(s.abox||0)+1; s.seen=true;
       s.box=Math.max(s.box, 4);            // producing it proves recognition too
+      s.ua=Date.now();
       store.cards[id]=s;
+      if(window.VBSync) VBSync.dirty(id);
     }
   });
   const words=(txt.trim().match(/\S+/g)||[]).length;
@@ -672,11 +677,71 @@ function fmtDay(key){
   return new Date(key+"T00:00").toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"short"});
 }
 
+// ---------- accounts / cloud sync bridge (v1.4) ----------
+// sync.js (optional) talks to the app only through window.VBApp.
+let authEmail=null;
+function mergeRemote(rows){
+  const now=Date.now(), toPush=[], rmap={};
+  rows.forEach(r=>{ rmap[r.card_id]=r; });
+  rows.forEach(r=>{
+    const l=store.cards[r.card_id], rua=Date.parse(r.updated_at)||0, lua=(l&&l.ua)||0;
+    if(!l || rua>lua) store.cards[r.card_id]={box:r.box||0,abox:r.abox||0,due:r.due||0,seen:!!r.seen,ua:rua};
+  });
+  Object.keys(store.cards).forEach(id=>{
+    const l=store.cards[id]; if(!l.ua) l.ua=now;
+    const r=rmap[id], rua=r?(Date.parse(r.updated_at)||0):-1;
+    if(l.ua>rua) toPush.push({card_id:id,box:l.box|0,abox:l.abox|0,due:l.due|0,seen:!!l.seen,updated_at:new Date(l.ua).toISOString()});
+  });
+  save();
+  if(!$("#home").classList.contains("hidden")) renderHome();
+  else if(!$("#stats").classList.contains("hidden")) renderStats();
+  return toPush;
+}
+function shortEmail(e){ return e && e.length>18 ? e.slice(0,16)+"…" : (e||""); }
+function renderAccount(email){
+  authEmail = email;
+  const b=$("#accountBtn"); if(b) b.innerHTML = email ? "☁️ "+shortEmail(email) : "☁️ Konto";
+  if(!$("#account").classList.contains("hidden")) fillAccount();
+}
+function fillAccount(){
+  const box=$("#accountBody");
+  if(!window.VBSync){
+    box.innerHTML='<div class="empty">Konto ist nicht konfiguriert.</div>'; return;
+  }
+  if(authEmail){
+    box.innerHTML=
+      '<div class="acc-email">✅ Angemeldet als<br><b>'+escapeHtml(authEmail)+'</b></div>'+
+      '<p class="acc-note">Dein Fortschritt wird automatisch mit deinem Konto synchronisiert — auf allen Geräten gleich.</p>'+
+      '<button class="btn-ghost accbtn" id="syncNow">Jetzt synchronisieren</button>'+
+      '<button class="btn-ghost accbtn" id="signOutBtn">Abmelden</button>';
+    $("#syncNow").onclick=()=>{ if(window.VBSync) VBSync.sync(); toast("Synchronisiere …"); };
+    $("#signOutBtn").onclick=()=>{ if(window.VBSync) VBSync.signOut(); };
+  } else {
+    box.innerHTML=
+      '<p class="acc-note">Melde dich mit deiner E-Mail an, damit dein Fortschritt gespeichert bleibt und auf allen Geräten gleich ist. Du bekommst einen Login-Link per Mail — kein Passwort nötig.</p>'+
+      '<input class="tin accin" id="accEmail" type="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="deine@email.de">'+
+      '<button class="btn-primary accbtn" id="sendLinkBtn">Magischen Link senden</button>'+
+      '<div id="accMsg" class="acc-msg"></div>';
+    $("#sendLinkBtn").onclick=doSignIn;
+    $("#accEmail").addEventListener("keydown",e=>{ if(e.key==="Enter") doSignIn(); });
+  }
+}
+function doSignIn(){
+  const email=($("#accEmail").value||"").trim();
+  if(!/.+@.+\..+/.test(email)){ $("#accMsg").textContent="Bitte gib eine gültige E-Mail ein."; return; }
+  $("#sendLinkBtn").disabled=true; $("#accMsg").textContent="Sende Link …";
+  VBSync.signIn(email).then(r=>{
+    if(r && r.error){ $("#accMsg").textContent="Fehler: "+r.error.message; $("#sendLinkBtn").disabled=false; }
+    else $("#accMsg").innerHTML="📧 Link gesendet! Öffne die Mail an <b>"+escapeHtml(email)+"</b> (ggf. Spam) auf <b>diesem</b> Gerät.";
+  }).catch(e=>{ $("#accMsg").textContent="Fehler: "+(e&&e.message); $("#sendLinkBtn").disabled=false; });
+}
+
 // ---------- views ----------
 function show(v){
-  ["home","study","done","stats","prod"].forEach(x=>$("#"+x).classList.toggle("hidden",x!==v));
+  ["home","study","done","stats","prod","account"].forEach(x=>$("#"+x).classList.toggle("hidden",x!==v));
   if(v==="home") renderHome();
   if(v==="stats") renderStats();
+  if(v==="account") fillAccount();
 }
 
 // ---------- wiring ----------
@@ -698,6 +763,8 @@ $("#pText").addEventListener("input",e=>{
 $("#statsBtn").onclick=()=>show("stats");
 $("#statsBack").onclick=()=>show("home");
 $("#streak").onclick=()=>show("stats");
+$("#accountBtn").onclick=()=>show("account");
+$("#accountBack").onclick=()=>show("home");
 function effectiveTheme(){
   const t=document.documentElement.getAttribute("data-theme");
   if(t) return t;
@@ -726,5 +793,10 @@ updateThemeIcon();
 if(window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ()=>{ if(!store.theme) updateThemeIcon(); });
 $("#soundBtn").textContent=store.sound?"🔊":"🔇";
 show("home");
+
+// expose the sync bridge and kick off accounts (no-op if sync.js / config absent)
+window.VBApp = { snapshot:()=>store.cards, merge:mergeRemote, onAuth:renderAccount, toast:toast };
+if(window.VBSync) VBSync.start(); else { const b=$("#accountBtn"); if(b) b.style.display="none"; }
+
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();

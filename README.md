@@ -23,8 +23,9 @@ recognising it, to tapping its article, to typing it, to producing it in an exam
 - **der = blue · die = pink · das = green** gender colour-coding, guess the article before you flip.
 - German audio (TTS), satisfying swipe sounds, emoji anchors, streak, daily goal, and a
   **Fortschritt** screen (mastery ring, activity heatmap, passive/active split per lesson).
-- **Offline PWA**, installable to the home screen. All progress stored on-device (localStorage) —
-  no account, no backend, no tracking.
+- **Offline PWA**, installable to the home screen. Progress stored on-device (localStorage).
+- **Optional account (v1.4):** magic-link login (email, no password) with **cloud sync** across
+  devices via Supabase. Offline-first — the app is fully usable signed out, exactly like v1.3.
 
 712 words: L1 (140) · L2 (118) · L3 (141) · L4 (155) · L5 (158). Articles, plurals and the book's
 collocations come from the *Lektionswortschatz*; the meanings, example sentences and audio are
@@ -55,8 +56,19 @@ number in `index.html` **and** the `VERSION` string in `sw.js` on each deploy so
 | `app.js` | session engine, spaced repetition, exercises, audio, storage, stats |
 | `deck_l1.js` … `deck_l5.js` | the vocabulary, one file per lesson |
 | `emoji.js` | word → emoji anchor shown on the card back |
+| `config.js` | Supabase URL + publishable key (empty = accounts off) |
+| `sync.js`, `vendor/supabase.min.js` | optional cloud sync (offline-first) |
+| `supabase-schema.sql` | run once in Supabase to create the tables + RLS |
 | `sw.js`, `manifest.webmanifest`, `icon-*.png` | PWA / offline / install |
 | `CHANGELOG.md` | version history |
+
+## Accounts / cloud sync (optional)
+
+Leave `config.js` empty to keep the app pure-offline. To enable login + sync:
+1. Create a Supabase project; put its URL + **publishable/anon** key in `config.js` (safe to commit —
+   Row-Level Security protects the data; never commit the service_role key).
+2. Run `supabase-schema.sql` in the Supabase SQL Editor.
+3. In Authentication → URL Configuration, add your app URLs (localhost + domain) as Redirect URLs.
 
 ## Roadmap
 

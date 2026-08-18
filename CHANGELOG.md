@@ -1,5 +1,19 @@
 # Änderungen · Lernvokabeln
 
+## v1.4 — 18.08.2026
+**Konto & Cloud-Sync (Phase 1).** Optional, offline-first, standardmäßig aus, wenn nicht konfiguriert.
+- **Anmeldung per Magic-Link** (E-Mail, kein Passwort) über Supabase. Gmail-freundlich.
+- **Fortschritt wird pro Konto gespeichert** und geräteübergreifend synchronisiert. Beim ersten
+  Login wird der lokale Fortschritt hochgeladen und zusammengeführt (Last-Write-Wins pro Karte,
+  über einen `ua`-Zeitstempel je Karte). Nichts geht verloren.
+- Lokaler Speicher bleibt die Arbeitskopie; die Cloud ist nur ein Merge-Ziel. Ohne Netz oder
+  ohne Login funktioniert alles wie in v1.3.
+- Neuer „Konto“-Bildschirm; Supabase-Client wird lokal mitgeliefert (`vendor/`), damit die PWA
+  offline lädt. Zugangsdaten in `config.js` (der publishable Key ist bewusst öffentlich; RLS schützt
+  die Daten).
+- Nächste Schritte (nicht in v1.4): „Sign in with Google“-Button, Klassen-Gruppen mit Beitrittscode
+  und Bestenliste.
+
 ## Rebrand — 18.08.2026
 - Neuer Name **Lernvokabeln** mit Bienen-Logo 🐝, eigene Domain **learnvokabeln.com**,
   eigenes öffentliches GitHub-Repo.

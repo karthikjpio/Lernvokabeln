@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#121319" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest?v=8">
+<link rel="manifest" href="manifest.webmanifest?v=10">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Lernvokabeln</title>
 <style>
@@ -224,6 +224,16 @@ input,textarea{font-family:inherit}
 .prestips{margin-top:11px; padding-top:11px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted); line-height:1.5}
 .pres .btn-primary{margin-top:13px; width:100%; padding:13px; border-radius:14px; font-weight:750; font-size:15px}
 
+/* ---------- ACCOUNT ---------- */
+#account{flex:1; min-height:0; display:flex; flex-direction:column}
+.accountbody{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:10px 4px 20px}
+.acc-note{font-size:14px; color:var(--muted); line-height:1.55; margin:2px 0 16px}
+.accin{width:100%; margin-bottom:12px}
+.accbtn{width:100%; padding:14px; border-radius:14px; font-weight:750; font-size:15px; margin-top:10px}
+.acc-msg{margin-top:14px; font-size:13px; color:var(--muted); line-height:1.55}
+.acc-email{font-size:15px; line-height:1.5; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:15px}
+.acc-email b{font-size:16.5px}
+
 /* ---------- STATS ---------- */
 #stats{flex:1; min-height:0; display:flex; flex-direction:column}
 .statsbody{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 2px 20px}
@@ -314,6 +324,7 @@ input,textarea{font-family:inherit}
 
     <div class="foot">
       <button id="statsBtn">📊 Fortschritt</button>
+      <button id="accountBtn">☁️ Konto</button>
       <button id="resetBtn">↺ Reset</button>
     </div>
     <div class="madeby">Gebaut von <a href="https://karthikjp.io" target="_blank" rel="noopener">karthikjp.io</a></div>
@@ -354,6 +365,15 @@ input,textarea{font-family:inherit}
       <div class="pmeta"><span id="pWc">0 Wörter</span><button id="pGo">Auswerten</button></div>
       <div id="pResult"></div>
     </div>
+  </div>
+
+  <!-- ACCOUNT -->
+  <div id="account" class="hidden">
+    <div class="topbar">
+      <button class="iconbtn" id="accountBack">‹</button>
+      <div style="flex:1"><b style="font-size:17px">Konto &amp; Sync</b></div>
+    </div>
+    <div class="accountbody" id="accountBody"></div>
   </div>
 
   <!-- STATS -->
@@ -408,12 +428,15 @@ input,textarea{font-family:inherit}
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="emoji.js?v=8"></script>
-<script src="deck_l1.js?v=8"></script>
-<script src="deck_l2.js?v=8"></script>
-<script src="deck_l3.js?v=8"></script>
-<script src="deck_l4.js?v=8"></script>
-<script src="deck_l5.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="emoji.js?v=10"></script>
+<script src="deck_l1.js?v=10"></script>
+<script src="deck_l2.js?v=10"></script>
+<script src="deck_l3.js?v=10"></script>
+<script src="deck_l4.js?v=10"></script>
+<script src="deck_l5.js?v=10"></script>
+<script src="config.js?v=10"></script>
+<script src="vendor/supabase.min.js?v=10"></script>
+<script src="sync.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
