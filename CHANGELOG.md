@@ -1,7 +1,7 @@
 # Änderungen · Lernvokabeln
 
 ## Rebrand — 18.08.2026
-- Neuer Name **Lernvokabeln** mit Bienen-Logo 🐝, eigene Domain **learnvokabeln.com**,
+- Neuer Name **Lernvokabeln** mit Bienen-Logo 🐝, eigene Domain **lernvokabeln.com**,
   eigenes öffentliches GitHub-Repo.
 - Untertitel: „Kompass B2 DaF · Lektion 1–5“.
 - Hell/Dunkel-Umschalter (☀️/🌙) oben neben der Serie; Design-Knopf unten entfernt.

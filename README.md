@@ -4,7 +4,7 @@ A phone-first flashcard PWA for learning **German B2 vocabulary** from *Kompass 
 (Lektion 1–5). Swipe der/die/das cards, and as you get a word right it gets harder — from
 recognising it, to tapping its article, to typing it, to producing it in an exam-style task.
 
-**Live:** [learnvokabeln.com](https://learnvokabeln.com) · built by [karthikjp.io](https://karthikjp.io)
+**Live:** [lernvokabeln.com](https://lernvokabeln.com) · built by [karthikjp.io](https://karthikjp.io)
 
 ![version](https://img.shields.io/badge/version-1.3-blue) ![words](https://img.shields.io/badge/words-712-green) ![no%20backend](https://img.shields.io/badge/backend-none-lightgrey)
 
