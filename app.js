@@ -210,6 +210,7 @@ function renderHome(){
     ? '<b>Tagesziel geschafft!</b> 🎉<span>'+n+' von '+goal+' Karten</span>'
     : '<b>Heute: '+n+' / '+goal+'</b><span>'+(goal-n)+' Karten bis zum Ziel</span>';
   $("#streakN").textContent = store.streak.count||0;
+  const rs=$("#railStreakN"); if(rs) rs.textContent = store.streak.count||0;
 }
 
 // ---------- session ----------
@@ -698,12 +699,19 @@ $("#pText").addEventListener("input",e=>{
 $("#statsBtn").onclick=()=>show("stats");
 $("#statsBack").onclick=()=>show("home");
 $("#streak").onclick=()=>show("stats");
+// desktop rail (elements always in DOM; visible only ≥960px)
+$("#railHome").onclick=()=>show("home");
+$("#railStats").onclick=()=>show("stats");
+$("#railStreak").onclick=()=>show("stats");
+$("#railReset").onclick=()=>$("#resetBtn").click();
+$("#railTheme").onclick=()=>$("#themeToggle").click();
 function effectiveTheme(){
   const t=document.documentElement.getAttribute("data-theme");
   if(t) return t;
   return (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
 }
-function updateThemeIcon(){ $("#themeToggle").textContent = effectiveTheme()==="dark" ? "☀️" : "🌙"; }
+function updateThemeIcon(){ const ic = effectiveTheme()==="dark" ? "☀️" : "🌙";
+  $("#themeToggle").textContent = ic; const r=$("#railTheme"); if(r) r.textContent = ic; }
 $("#themeToggle").onclick=()=>{
   const nx = effectiveTheme()==="dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", nx);
